@@ -1,0 +1,50 @@
+name: Extract LuCI Components
+
+on:
+  workflow_dispatch: # 手动触发
+  push:
+    branches:
+      - main # 当主分支发生变化时触发
+
+jobs:
+  extract-components:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: 检出 N1-OpenWrt 仓库
+      - name: Checkout N1-OpenWrt Repository
+        uses: actions/checkout@v3
+        with:
+          repository: fightroad/N1-OpenWrt
+          path: N1-OpenWrt
+
+      # Step 2: 提取 luci-theme-design
+      - name: Extract luci-theme-design
+        run: |
+          mkdir luci-theme-design
+          cp -r N1-OpenWrt/package/luci-theme-design/* luci-theme-design/
+
+      # Step 3: 压缩 luci-theme-design
+      - name: Archive luci-theme-design
+        run: |
+          tar -czf luci-theme-design.tar.gz luci-theme-design
+
+      # Step 4: 提取 luci-app-design-config
+      - name: Extract luci-app-design-config
+        run: |
+          mkdir luci-app-design-config
+          cp -r N1-OpenWrt/package/luci-app-design-config/* luci-app-design-config/
+
+      # Step 5: 压缩 luci-app-design-config
+      - name: Archive luci-app-design-config
+        run: |
+          tar -czf luci-app-design-config.tar.gz luci-app-design-config
+
+      # Step 6: 上传到 Artifacts
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: luci-components
+          path: |
+            luci-theme-design.tar.gz
+            luci-app-design-config.tar.gz
